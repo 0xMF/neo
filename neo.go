@@ -1,29 +1,36 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
-	"strings"
 	"sync"
-	"time"
 )
-
-var mission = "/usr/bin/" + item
+var	neo = make(chan int)
+var mission = "default"
+var pwd string
 
 func main() {
+	var err error
+	pwd, err = os.Getwd()
+	log.Printf("Begin mission: %v", err)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go workerItem(1,&wg)
+	<-neo
+	wg.Wait()
 }
 
 func workerItem(id int, wg *sync.WaitGroup) {
 
 	defer wg.Done()
 
-	itemCheckPost = itemCheckPost + " " + localF
-	//fmt.Println(itemCheckPost)
+	mission = pwd + "/" + mission
+	log.Printf(mission)
 
-	cmdline := exec.Command("/bin/bash", "-c", itemCheckPost)
-	err := cmdline.Run()
+	cmd := exec.Command("/bin/bash", "-c", mission)
+	err := cmd.Run() // cmd.Run()
 	log.Printf("Finished checking item: %v", err)
 	neo <- 1
 }

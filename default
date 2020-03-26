@@ -1,15 +1,15 @@
 #!/bin/bash
 #--
 #
-# Purpose: used on matrix to get student work
+# Purpose: handles student missions on matrix
 # Creator: Mark Fernandes.
 # Updated: March 25, 2020
 # License: MIT
 
 OWNER=mark.fernandes
-LOBBY=20a
+RIDER=20a
 
-DIR=/home/${OWNER}/.${LOBBY}
+DIR=/home/${OWNER}/.${RIDER}
 TIMESTAMP=$(/usr/bin/date +"%Y%m%d_%H:%M%S")
 
 logF=${DIR}/${USER}-${TIMESTAMP}
@@ -33,7 +33,7 @@ case $myeditor in
     e) /usr/bin/emacs $logF ;;
     n) /usr/local/bin/nled $logF ;;
     v) /usr/bin/vim $logF ;;
-    *) { echo No such editor 2&>1 ; exit ; } ;;
+    *) { echo "No such editor" 2>&1 ; exit ; } ;;
 esac
 
 echo
