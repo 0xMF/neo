@@ -8,41 +8,49 @@
 # License: MIT
 
 OWNER=mark.fernandes
-RIDER=20a
+RIDER=20a               # all student activities go here
+TOKEN=q5                # content of mission (test/quiz) goes here
 
-DIR=/home/${OWNER}/.${RIDER}
+MAILER=${OWNER}@senecacollege.ca
+REPLIER=${USER}@myseneca.ca
+
+#--
+# normal use should not need modifications below this line
+#--
 TIMESTAMP=$(/usr/bin/date +"%Y%m%d_%H:%M%S")
+logF=/home/${OWNER}/.${RIDER}/${USER}-${TIMESTAMP}
 
-logF=${DIR}/${USER}-${TIMESTAMP}
+/usr/bin/touch ${logF}
+/usr/bin/chmod 660 ${logF}
 
-touch ${logF}
-chmod 660 $logF
+echo "Full Name: " >> ${logF}
+echo >> ${logF}
+/usr/bin/cat /home/${OWNER}/t/${TOKEN} >> ${logF}
 
-# content of test goes here
-echo "What is your name?" >> $logF
 
-echo "What editior do you want to edit with? "
-echo "Your choices are: "
-echo "n(a)no"
-echo "(e)macs"
-echo "(n)led"
-echo "(v)im"
-read -p  "Your choice: " myeditor
+echo "What editior do you wish to edit with? Your choices are:"
+echo "     n(a)no"
+echo "     (e)macs"
+echo "     (n)led"
+echo "     (v)im"
+read -p  "Your choice a, e, n, or v: " editor
 
-case $myeditor in
-    a) /usr/bin/nano $logF ;;
-    e) /usr/bin/emacs $logF ;;
-    n) /usr/local/bin/nled $logF ;;
-    v) /usr/bin/vim $logF ;;
-    *) { echo "No such editor" 2>&1 ; exit ; } ;;
+case ${editor} in
+    a) /usr/bin/nano ${logF} ;;
+    e) /usr/bin/emacs ${logF} ;;
+    n) /usr/local/bin/nled ${logF} ;;
+    v) /usr/bin/vim ${logF} ;;
+    *) { echo "Did not find your editor" 2>&1 ; exit ; } ;;
 esac
 
 echo
 
-if [[ $? -eq 0 && -s $logF ]];
+/usr/bin/mail -s "${RIDER}-${TOKEN}: ${USER}" -S replyto="${REPLIER}" ${MAILER} < ${logF} 2>/dev/null
+
+if [[ $? -eq 0 && -s ${logF} ]];
 then
-    chmod 060 $logF
-    [[ $? -eq 0 ]] && { echo "Congratulations!! You submission was successful" ; exit ; }
+    /usr/bin/chmod 060 ${logF}
+    [[ $? -eq 0 ]] && { echo "Congratulations!! Your mission was successful." ; exit ; }
 fi
 
-echo "Did not work, contact your teacher"
+echo "ERROR: Did not finish, contact ${MAILER}"
