@@ -4,33 +4,23 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"sync"
+	"path"
+	"path/filepath"
 )
-var	neo = make(chan int)
+
 var mission = "default"
-var pwd string
 
 func main() {
-	var err error
-	pwd, err = os.Getwd()
-	log.Printf("Begin mission: %v", err)
+	log.Printf(string(os.Args[0]))
+	exe, err := filepath.EvalSymlinks(os.Args[0])
+	mission = path.Dir(exe) + "/" + mission
+	log.Printf("Start: %v", err)
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go workerItem(1,&wg)
-	<-neo
-	wg.Wait()
-}
-
-func workerItem(id int, wg *sync.WaitGroup) {
-
-	defer wg.Done()
-
-	mission = pwd + "/" + mission
-	log.Printf(mission)
-
-	cmd := exec.Command("/bin/bash", "-c", mission)
-	err := cmd.Run() // cmd.Run()
-	log.Printf("Finished checking item: %v", err)
-	neo <- 1
+	mCmd := exec.Command("/bin/bash", "-c", mission)
+	mCmd.Stdin = os.Stdin
+	mCmd.Stdout = os.Stdout
+	mCmd.Stderr = os.Stderr
+	mCmd.Start()
+	err = mCmd.Wait()
+	log.Printf("Stop : %v", err)
 }
