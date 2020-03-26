@@ -6,10 +6,10 @@
 # Updated: March 25, 2020
 # License: MIT
 
-TEACHER=mark.fernandes
-SEMESTR=20a
+OWNER=mark.fernandes
+LOBBY=20a
 
-DIR=/home/${TEACHER}/.${SEMESTER}
+DIR=/home/${OWNER}/.${LOBBY}
 TIMESTAMP=$(/usr/bin/date +"%Y%m%d_%H:%M%S")
 
 logF=${DIR}/${USER}-${TIMESTAMP}
@@ -20,17 +20,19 @@ chmod 660 $logF
 # content of test goes here
 echo "What is your name?" >> $logF
 
-echo "What editior do you want to edit with? " 
-echo "Your choices are: " 
-echo "1. vi"
-echo "2. nano"
-echo "3. emacs"
-read -p  "Your choice [1-3]: " myeditor
+echo "What editior do you want to edit with? "
+echo "Your choices are: "
+echo "n(a)no"
+echo "(e)macs"
+echo "(n)led"
+echo "(v)im"
+read -p  "Your choice: " myeditor
 
 case $myeditor in
-    1) /usr/bin/vi $logF ;;
-    2) /usr/bin/nano $logF ;;
-    3) /usr/bin/emacs $logF ;;
+    a) /usr/bin/nano $logF ;;
+    e) /usr/bin/emacs $logF ;;
+    n) /usr/local/bin/nled $logF ;;
+    v) /usr/bin/vim $logF ;;
     *) { echo No such editor 2&>1 ; exit ; } ;;
 esac
 
