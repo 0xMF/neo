@@ -8,7 +8,7 @@
 # License: MIT
 
 OWNER=mark.fernandes
-RIDER=20a               # all student activities go here
+RIDER=20a               # student responses (log files) go here
 TOKEN=q5                # content of mission (test/quiz) goes here
 
 MAILER=${OWNER}@senecacollege.ca
