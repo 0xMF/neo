@@ -8,42 +8,67 @@
 # License: MIT
 
 OWNER=mark.fernandes
-RIDER=20a               # student responses (log files) go here
-TOKEN=q5                # content of mission (test/quiz) goes here
+RIDER=                  # student log files
+TOKEN=                  # mission (test/quiz)
 
-MAILER=${OWNER}@senecacollege.ca
-REPLIER=${USER}@myseneca.ca
+MAILER=${OWNER}@some.where
+REPLIER=${USER}@some.where
+
+[[ -e local.default ]] && . local.default
 
 #--
 # normal use should not need modifications below this line
 #--
 TIMESTAMP=$(/usr/bin/date +"%Y%m%d_%H:%M%S")
-logF=/home/${OWNER}/.${RIDER}/${USER}-${TIMESTAMP}
+logF=${USER}-${TIMESTAMP}
 
+[[ -d ~/.neo/${RIDER}  ]] && cd /home/${OWNER}/.neo/${RIDER}/
 /usr/bin/touch ${logF}
 /usr/bin/chmod 660 ${logF}
+/usr/bin/cp ${logF} ${logF}-00
+/usr/bin/chmod 060 ${logF}-00
+
+echo -n "Checking your session..." 2>&1
+if [[ "$USER" != "$OWNER" ]]; then
+  if [[ -e /usr/bin/mwho && `/usr/local/bin/mwho | /usr/bin/grep -ce $USER` -ne 1 ]]; then
+    echo -e "\nERROR: Can't have multiple sessions open simultaneously."
+    exit 1
+  fi
+fi
+echo "Ok!"
 
 echo "Full Name: " >> ${logF}
 echo >> ${logF}
 /usr/bin/cat /home/${OWNER}/t/${TOKEN} >> ${logF}
 
-
+l=/usr/local/bin/nled
 echo "What editior do you wish to edit with? Your choices are:"
-echo "     n(a)no"
-echo "     (e)macs"
-echo "     (n)led"
+#echo "     (e)macs"
+[[ -e $l ]] && echo "     n(l)ed"
+echo "     (n)ano"
 echo "     (v)im"
 read -p  "Your choice a, e, n, or v: " editor
 
 case ${editor} in
-    a) /usr/bin/nano ${logF} ;;
-    e) /usr/bin/emacs ${logF} ;;
-    n) /usr/local/bin/nled ${logF} ;;
+    #e) /usr/bin/emacs ${logF} ;;
+    l) /usr/local/bin/nled ${logF} ;;
+    n) /usr/bin/nano ${logF} ;;
     v) /usr/bin/vim ${logF} ;;
-    *) { echo "Did not find your editor" 2>&1 ; exit ; } ;;
+    *) { echo "ERROR! Did not find your editor" 2>&1 ; exit 1; } ;;
 esac
 
+if [[ -d all ]]; then
+  /usr/bin/cp ${logF} ${logF}-00 all/
+  /usr/bin/chmod 660 all/${logF}
+fi
+
 echo
+
+echo $USER|/usr/bin/grep -e "\." 2>&1 > /dev/null
+if [[ $? -eq 0 ]]; then
+  f=$(echo ${MAILER} | /usr/bin/sed 's/'"${OWNER}"'//')
+  /usr/bin/mail -s "${RIDER}-${TOKEN}: ${USER}" -S replyto="$USER$f" $USER$f < ${logF} 2>/dev/null
+fi
 
 /usr/bin/mail -s "${RIDER}-${TOKEN}: ${USER}" -S replyto="${REPLIER}" ${MAILER} < ${logF} 2>/dev/null
 

@@ -14,7 +14,7 @@ func main() {
 	log.Printf(string(os.Args[0]))
 	exe, err := filepath.EvalSymlinks(os.Args[0])
 	mission = path.Dir(exe) + "/.0xMF/" + mission
-	log.Printf("Start: %v", err)
+	log.Printf("Begin: %v", err)
 
 	mCmd := exec.Command("/bin/bash", "-c", mission)
 	mCmd.Stdin = os.Stdin
@@ -22,5 +22,5 @@ func main() {
 	mCmd.Stderr = os.Stderr
 	mCmd.Start()
 	err = mCmd.Wait()
-	log.Printf("Stop : %v", err)
+	log.Printf("End  : %v", err)
 }
