@@ -12,8 +12,9 @@ var mission = "default"
 
 func main() {
 	log.Printf(string(os.Args[0]))
+
 	exe, err := filepath.EvalSymlinks(os.Args[0])
-	mission = path.Dir(exe) + "/.0xMF/" + mission
+	mission = path.Dir(exe) + "/.neo/" + mission
 	log.Printf("Begin: %v", err)
 
 	mCmd := exec.Command("/bin/bash", "-c", mission)

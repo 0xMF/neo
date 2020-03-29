@@ -11,10 +11,15 @@ OWNER=mark.fernandes
 RIDER=                  # student log files
 TOKEN=                  # mission (test/quiz)
 
-MAILER=${OWNER}@some.where
-REPLIER=${USER}@some.where
+MAILER=                 # ${OWNER}@owner.domain
+REPLIER=                # ${USER}@MyOwner.domain
 
-[[ -e local.default ]] && . local.default
+THISDIR=`dirname $(readlink -e $0)`
+[[ -e ${THISDIR}/local.default ]] && . ${THISDIR}/local.default
+if [[ -z ${OWNER} || -z ${RIDER} || -z ${TOKEN} || -z ${MAILER} || -z ${REPLIER} ]]; then
+  echo "nothing to do." >&2
+  exit 1
+fi
 
 #--
 # normal use should not need modifications below this line
@@ -22,47 +27,47 @@ REPLIER=${USER}@some.where
 TIMESTAMP=$(/usr/bin/date +"%Y%m%d_%H:%M%S")
 logF=${USER}-${TIMESTAMP}
 
-[[ -d ~/.neo/${RIDER}  ]] && cd /home/${OWNER}/.neo/${RIDER}/
+[[ -d /home/${OWNER}/.neo/${RIDER} ]] && cd /home/${OWNER}/.neo/${RIDER}
 /usr/bin/touch ${logF}
 /usr/bin/chmod 660 ${logF}
-/usr/bin/cp ${logF} ${logF}-00
-/usr/bin/chmod 060 ${logF}-00
+/usr/bin/cp ${logF} all/${logF}-00
+/usr/bin/chmod 060 all/${logF}-00
 
-echo -n "Checking your session..." 2>&1
+echo -n "Checking your session..." >&2
 if [[ "$USER" != "$OWNER" ]]; then
   if [[ -e /usr/bin/mwho && `/usr/local/bin/mwho | /usr/bin/grep -ce $USER` -ne 1 ]]; then
-    echo -e "\nERROR: Can't have multiple sessions open simultaneously."
+    echo -e "\nERROR: Can't have multiple sessions open simultaneously." >&2
     exit 1
   fi
 fi
-echo "Ok!"
+echo "Ok!" >&2
 
 echo "Full Name: " >> ${logF}
 echo >> ${logF}
-/usr/bin/cat /home/${OWNER}/t/${TOKEN} >> ${logF}
+[[ -e /home/${OWNER}/t/${TOKEN} ]] && /usr/bin/cat /home/${OWNER}/t/${TOKEN} >> ${logF}
 
 l=/usr/local/bin/nled
-echo "What editior do you wish to edit with? Your choices are:"
-#echo "     (e)macs"
-[[ -e $l ]] && echo "     n(l)ed"
-echo "     (n)ano"
-echo "     (v)im"
-read -p  "Your choice a, e, n, or v: " editor
+echo "What editior do you wish to edit with? Your choices are:" >&2
+#echo "     (e)macs" >&2
+[[ -e $l ]] && echo "     n(l)ed" >&2
+echo "     (n)ano" >&2
+echo "     (v)im"  >&2
+read -p  "Your choice n or v: " editor
 
 case ${editor} in
     #e) /usr/bin/emacs ${logF} ;;
     l) /usr/local/bin/nled ${logF} ;;
     n) /usr/bin/nano ${logF} ;;
     v) /usr/bin/vim ${logF} ;;
-    *) { echo "ERROR! Did not find your editor" 2>&1 ; exit 1; } ;;
+    *) { echo "ERROR! Did not find your editor" >&2 ; exit 1; } ;;
 esac
 
 if [[ -d all ]]; then
-  /usr/bin/cp ${logF} ${logF}-00 all/
+  /usr/bin/cp ${logF} all/
   /usr/bin/chmod 660 all/${logF}
 fi
 
-echo
+echo >&2
 
 echo $USER|/usr/bin/grep -e "\." 2>&1 > /dev/null
 if [[ $? -eq 0 ]]; then
@@ -75,7 +80,7 @@ fi
 if [[ $? -eq 0 && -s ${logF} ]];
 then
     /usr/bin/chmod 060 ${logF}
-    [[ $? -eq 0 ]] && { echo "Congratulations!! Your mission was successful." ; exit ; }
+    [[ $? -eq 0 ]] && { echo "Congratulations!! Your mission was successful." >&2 ; exit ; }
 fi
 
-echo "ERROR: Did not finish, contact ${MAILER}"
+echo "ERROR: Did not finish, contact ${MAILER}" >&2
