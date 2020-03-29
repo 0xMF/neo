@@ -4,7 +4,7 @@
 # Purpose: handles student missions on matrix
 # Creator: Mark Fernandes.
 # Created: March 25, 2020
-# Updated: March 26, 2020
+# Updated: March 29, 2020
 # License: MIT
 
 OWNER=mark.fernandes
@@ -27,16 +27,24 @@ fi
 TIMESTAMP=$(/usr/bin/date +"%Y%m%d_%H:%M%S")
 logF=${USER}-${TIMESTAMP}
 
-[[ -d /home/${OWNER}/.neo/${RIDER} ]] && cd /home/${OWNER}/.neo/${RIDER}
+if [[ -d /home/${OWNER}/.neo/${RIDER} ]]; then
+    cd /home/${OWNER}/.neo/${RIDER}
+else
+   echo -e "\nERROR: /home/${OWNER}/.neo/${RIDER} not found." >&2
+   exit 1
+fi
 /usr/bin/touch ${logF}
 /usr/bin/chmod 660 ${logF}
-/usr/bin/cp ${logF} all/${logF}-00
-/usr/bin/chmod 060 all/${logF}-00
+
+if [[ -d all ]]; then
+  /usr/bin/cp ${logF} all/${logF}-00
+  /usr/bin/chmod 060 all/${logF}-00
+fi
 
 echo -n "Checking your session..." >&2
 if [[ "$USER" != "$OWNER" ]]; then
-  if [[ -e /usr/bin/mwho && `/usr/local/bin/mwho | /usr/bin/grep -ce $USER` -ne 1 ]]; then
-    echo -e "\nERROR: Can't have multiple sessions open simultaneously." >&2
+  if [[ -e /usr/local/bin/mwho && `/usr/local/bin/mwho | /usr/bin/grep -ce $USER` -ne 1 ]]; then
+    echo -e "\nERROR: Only ONE login session allowed. Logout or kill your other login sessions." >&2
     exit 1
   fi
 fi
