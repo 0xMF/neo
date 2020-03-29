@@ -67,7 +67,7 @@ case ${editor} in
     l) /usr/local/bin/nled ${logF} ;;
     n) /usr/bin/nano ${logF} ;;
     v) /usr/bin/vim ${logF} ;;
-    *) { echo "ERROR! Did not find your editor" >&2 ; exit 1; } ;;
+    *) { [[ -e $l ]] && $l ${logF} || echo "ERROR! Did not find your editor" >&2 ; exit 1; } ;;
 esac
 
 if [[ -d all ]]; then
