@@ -1,4 +1,4 @@
-package main
+package edit
 
 import (
 	"log"
@@ -10,7 +10,7 @@ import (
 
 var mission = "default"
 
-func main() {
+func edit() {
 	log.Printf(string(os.Args[0]))
 
 	exe, err := filepath.EvalSymlinks(os.Args[0])

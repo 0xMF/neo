@@ -1,0 +1,40 @@
+#!/bin/bash
+
+FILE=$1
+
+INPUT=""
+TNAME="ABCD"
+TLEAD=""
+
+
+if [ ! -s "${FILE}" ]; then
+  echo "No sections found."
+  exit 1
+fi
+
+get_section() {
+  clear
+
+  echo "-----------------------------------------------------------"
+  sed '/#/d;/^$/d' "${FILE}" | awk -F'|' '{print $1, $2}'| column
+  echo "-----------------------------------------------------------"
+  echo -n "Enter the 3 letter code for your section? "
+
+  read INPUT
+  INPUT=$(echo ${INPUT} | tr -cd "[:print:]\n"  | tr '[a-z]' '[A-Z]'| sed 's/ //g')
+  TNAME=$(grep -wR ${INPUT} ${FILE} 2>/dev/null | cut -d'|' -f1)
+  TLEAD=$(grep -wR ${INPUT} ${FILE} 2>/dev/null | cut -d'|' -f3)
+
+  if [ -z ${INPUT} ] || [ "${TNAME}" != "${INPUT}" ]; then
+    echo -ne "\nInvalid section. Press ENTER and try again."
+    read
+  fi
+}
+
+while [ -z ${INPUT} ] || [ -z ${TNAME} ] || [[ "${TNAME}" != "${INPUT}" ]];
+do
+  get_section "$FILE"
+done
+
+clear
+>&2 echo -n "$TNAME,$TLEAD"
