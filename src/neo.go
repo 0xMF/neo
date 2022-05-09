@@ -29,6 +29,7 @@ var usrname string
 var topicNo = 0
 var ymlFile = "0"
 var done Complete
+var doneF string
 var term Terminal
 var test = Test{}
 var csvStats = new(csv.Writer)
@@ -88,6 +89,22 @@ func initDone() {
 	player.Score = 0
 	EOK(errDir, err, "did not finish script", errBytes.String())
 }
+
+func sendMail() {
+
+	var errBytes bytes.Buffer
+	doneF = logDir + "/" + player.Name + ".done"
+	var shMail = shMail + " " + player.Team + " " + doneF
+	cmd := exec.Command("/bin/bash", "-c", shMail)
+	cmd.Stdin  = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = &errBytes
+	err := cmd.Start()
+	EOK(errDir, err, "mail not sent", errBytes.String())
+	err = cmd.Wait()
+	EOK(errDir, err, "couldn't send email", errBytes.String())
+}
+
 
 func main() {
 
@@ -177,6 +194,7 @@ func check(g *gocui.Gui, v *gocui.View) error {
 				}
 				OK(csvStats.Error())
 				log.SetOutput(os.Stdout)
+				sendMail()
 			}
 		}
 		return refreshMenu(g, v)

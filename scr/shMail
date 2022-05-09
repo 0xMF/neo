@@ -1,0 +1,26 @@
+#!/bin/bash
+
+SCR=$0
+#         $1     $2           $3  $4            $5
+# mail -s sub -S from $(grep sect admin|cut)  < body
+SUBJ=$1
+FROM=$2
+ADMN=$3
+SECT=$4
+BODY=$5
+
+
+LN=$(\grep -w "${SECT}" "${ADMN}")
+TO=$(echo "${LN}"| cut -d'|' -f4)
+YN=$(echo "${LN}"| cut -d'|' -f5| tr '[A-Z]' '[a-z]')
+
+if [ ! -s "${BODY}" ]; then
+  echo "Invalid message content."
+  exit 1
+fi
+
+if [ "${YN}" = "yes" ]; then
+  mail -s "${SUBJ}" -S replyto="${FROM}" "${TO}" < "${BODY}" 2>/dev/null
+fi
+
+clear

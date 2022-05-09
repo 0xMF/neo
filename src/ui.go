@@ -71,7 +71,7 @@ func EOK(epath string, err error, s ...string) {
 		//ioutil.WriteFile(e, []byte(fmt.Sprintf("%s: %v\n%s", time.Now().Format(time.RFC822), elog,w)),0240)
 		file.WriteString(fmt.Sprintf("%s: %v\n%s", time.Now().Format(time.RFC822),elog,w))
 		log.Printf("%s\n\n", s[0])
-		log.Print("ERROR: email " + sendTo)
+		log.Print("ERROR: email " + replyTo)
 		log.Print("       with a screenshot/picture of this message and a")
 		log.Fatal("       description of what happened before this error.")
 	}

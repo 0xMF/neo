@@ -12,7 +12,10 @@ var errDir = ""
 var logDir = ""
 var shInit = ""
 var shWins = ""
-var sendTo = ""
+var shMail = ""
+
+var replyTo = ""
+var subject = ""
 
 var logRWrite os.FileMode = 0244
 var logUpdate os.FileMode = 0644
