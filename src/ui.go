@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/jroimartin/gocui"
+	"github.com/awesome-gocui/gocui"
 )
 
 type size struct {
@@ -83,18 +83,25 @@ func layout(g *gocui.Gui) error {
 	sizes["writer"] = size{name: "writer", top: -1, left: 1, bottom: term.width, right: term.height - 4}
 	sizes["reader"] = size{name: "reader", top: -1, left: term.height - 4, bottom: term.width, right: term.height - 2}
 	sizes["status"] = size{name: "status", top: -1, left: term.height - 2, bottom: term.width, right: term.height}
+	//sizes["header"] = size{name: "header", top: 0, left: -1, bottom: term.width -1, right: 1}
+	//sizes["writer"] = size{name: "writer", top: 0, left: 1, bottom: term.width -1, right: term.height - 4}
+	//sizes["reader"] = size{name: "reader", top: 0, left: term.height - 5, bottom: term.width -1, right: term.height - 3}
+	//sizes["status"] = size{name: "status", top: 0, left: term.height - 3, bottom: term.width -1, right: term.height - 1}
 
 	for name, details := range sizes {
 		var h handle = term.views[name]
 		if h.View == nil {
 			v, err := makeView(g, details)
-			ok(err)
-			term.views[name] = handle{View: v, call: h.call, text: h.text}
+			OK(err)
+			term.views[name] = handle{View: v, text: h.text}
+			refresh(name, h.text)
 		}
 	}
+
 	if _, err := g.SetCurrentView("reader"); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -168,12 +175,25 @@ func keybindings(g *gocui.Gui) error {
 }
 
 func makeView(g *gocui.Gui, s size) (*gocui.View, error) {
-	v, err := g.SetView(s.name, s.top, s.left, s.bottom, s.right)
+	v, err := g.SetView(s.name, s.top, s.left, s.bottom, s.right, 1)
 	if err != gocui.ErrUnknownView {
-		return v, err
+		return nil, err
 	}
-	var h handle = term.views[s.name]
-	ok(h.call(v), "cannot update "+s.name)
+
+	v.Frame = false
+	v.FrameColor = gocui.ColorCyan
+	v.Wrap = true
+
+	if s.name == "reader" {
+		v.Editable = true
+	} else {
+		v.Editable = false
+	}
+
+	if s.name == "header" || s.name == "status" {
+		v.Highlight = true
+	}
+
 	return v, nil
 }
 
@@ -187,13 +207,21 @@ func nextView(g *gocui.Gui, v *gocui.View) error {
 }
 
 // one refresh to rule them all
-func refresh(n string, g *gocui.Gui, s string) error {
-	var sizes map[string]size = make(map[string]size)
-	ok(g.DeleteView(n))
-	term.views[n] = handle{View: nil, call: term.views[n].call, text: s}
-	v, err := makeView(g, sizes[n])
-	term.views[n] = handle{View: v, call: term.views[n].call, text: s}
-	return err
+func refresh(n string, s string) {
+	v := term.views[n].View
+	v.Clear()
+	v.SetCursor(0, 0)
+	v.Frame = true
+	term.Update(func(g *gocui.Gui) error {
+			v, err := g.View(n)
+			if err != nil {
+				// handle error
+			}
+			v.Clear()
+			fmt.Fprintf(v, "%v", s)
+			return nil
+	})
+	term.views[n] = handle{View: v, text: s}
 }
 
 func header(v *gocui.View) error {

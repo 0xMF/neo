@@ -1,18 +1,21 @@
-
 package main
 
 import "os"
 
-var topDir = ""
-var semDir = ""
-
 var adminF = ""
+var levelN = ""
+
 var askDir = ""
 var errDir = ""
 var logDir = ""
+var nowDir = ""
+var topDir = ""
+
+var shDone = ""
 var shInit = ""
-var shWins = ""
+var shLkup = ""
 var shMail = ""
+var shWins = ""
 
 var replyTo = ""
 var subject = ""

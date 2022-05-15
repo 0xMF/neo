@@ -15,7 +15,7 @@ TO=$(echo "${LN}"| cut -d'|' -f4)
 YN=$(echo "${LN}"| cut -d'|' -f5| tr '[A-Z]' '[a-z]')
 
 if [ ! -s "${BODY}" ]; then
-  echo "Invalid message content."
+  echo "Invalid message content: ${BODY}"
   exit 1
 fi
 

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+FILE=$3
+
+awk -v TEAM=$1 -v PART=$2 -F'|' '$1 == TEAM {print $PART}' $FILE

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+SCR=$0
+FILE=$1
+FIELD=6
+
+if [ ! -s "$FILE" ]; then
+  >&2 echo "File is empty or not found."
+  exit 1
+fi
+
+sort -ut, -nk"$FIELD" "$FILE" | wc -l

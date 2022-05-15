@@ -1,18 +1,16 @@
 #!/bin/bash
 
 SCR=$0
-DIR=$1
-USR=$2
 
+DFILE=$1
+FIELD=6
 SCORE=
-SECTF="NIB"
 
-if [ ! -d "${DIR}" ]; then
-  echo "Directory not found."
+if [ ! -s "${DFILE}" ]; then
+  >&2 echo "Directory not found. ${DFILE}"
   exit 1
 fi
 
-SCORE=$(sort -ut, -nk4 "$DIR/$USR" | wc -l)
+SCORE=$(sort -ut, -nk"${FIELD}","${FIELD}" "${DFILE}" | cut -d, -f"${FIELD}" | tr '\n' ',' | sed 's/,$//')
 
-clear
->&2 echo -n $SCORE
+echo -n ${SCORE}
