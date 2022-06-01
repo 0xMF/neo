@@ -1,16 +1,17 @@
 #!/bin/bash
 
 SCR=$0
-#         $1     $2           $3  $4            $5
-# mail -s sub -S from $(grep sect admin|cut)  < body
+#          $1        $2       $3            $4            $5      $6
+# shMail + subject + adminF + player.Name + player.Team + score + doneF
 SUBJ=$1
-FROM=$2
-ADMN=$3
-SECT=$4
-BODY=$5
+ADMN=$2
 
+FROM=$3
+TEAM=$4
+DONE=$5
+BODY=$6
 
-LN=$(\grep -w "${SECT}" "${ADMN}")
+LN=$(grep -w "${TEAM}" "${ADMN}")
 TO=$(echo "${LN}"| cut -d'|' -f4)
 YN=$(echo "${LN}"| cut -d'|' -f5| tr '[A-Z]' '[a-z]')
 
@@ -19,8 +20,6 @@ if [ ! -s "${BODY}" ]; then
   exit 1
 fi
 
-if [ "${YN}" = "yes" ]; then
-  mail -s "${SUBJ}" -S replyto="${FROM}" "${TO}" < "${BODY}" 2>/dev/null
+if [[ "${YN}" == "yes" ]]; then
+  tac "${BODY}" | mail -s "${SUBJ}${TEAM} ${DONE}" -S replyto="${FROM}" "${TO}" 2>/dev/null
 fi
-
-clear

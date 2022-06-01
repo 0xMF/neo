@@ -7,7 +7,7 @@ FIELD=6
 SCORE=
 
 if [ ! -s "${DFILE}" ]; then
-  >&2 echo "Directory not found. ${DFILE}"
+  >&2 echo "File empty or not found: ${DFILE}"
   exit 1
 fi
 

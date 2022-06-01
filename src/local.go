@@ -1,9 +1,13 @@
+
 package main
 
 import "os"
 
-var adminF = ""
-var levelN = ""
+var adminF  = ""
+var level   = ""
+var levels  = ""
+var replyTo = ""
+var subject = ""
 
 var askDir = ""
 var errDir = ""
@@ -16,9 +20,6 @@ var shInit = ""
 var shLkup = ""
 var shMail = ""
 var shWins = ""
-
-var replyTo = ""
-var subject = ""
 
 var logRWrite os.FileMode = 0244
 var logUpdate os.FileMode = 0644

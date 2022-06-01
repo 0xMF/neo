@@ -140,12 +140,13 @@ func initDone(s int) {
 	EOK(errDir, err, "did not finish script", errBytes.String())
 }
 
-func sendMail() {
+func sendMail(s string) {
 
 	var errBytes bytes.Buffer
 	doneF = logDir + "/" + player.Name + ".done"
-	var shMail = shMail + " " + player.Team + " " + doneF
-	cmd := exec.Command("/bin/bash", "-c", shMail)
+	mail := shMail + " " + player.Name + " " + player.Team + " " + s + " " + doneF
+	cmd := exec.Command("/bin/bash", "-c", mail)
+	//log.Println(cmd.String()[42:])
 	cmd.Stdin  = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = &errBytes
@@ -156,6 +157,11 @@ func sendMail() {
 }
 
 func updatePlayer() {
+
+	if player.Team == "nil" {
+		initDone(0)
+		return
+	}
 
 	var outBytes bytes.Buffer
 	doneF = logDir + "/" + player.Name + ".done"
@@ -221,6 +227,12 @@ func main() {
 	EOK(errDir, err, fmt.Sprintf("Log permission error for %s", usrname))
 	csvFile = csv.NewWriter(file)
 
+	fi,_ := file.Stat()
+	if fi.Size() <= 10 {
+		player.Team = "nil"
+		player.Lead = "nil"
+	}
+
 	// done log
 	done.Modules = make(map[int]bool)
 	l += ".done"
@@ -230,9 +242,15 @@ func main() {
 	defer file.Close()
 	csvStats = csv.NewWriter(file)
 
+	fi,_ = file.Stat()
+	if fi.Size() <= 10 {
+		player.Team = "nil"
+		player.Lead = "nil"
+	}
+
 	updatePlayer()
 	if player.Team == "nil" || player.Lead == "nil" {
-		ymlFile = levelN
+		ymlFile = level
 	} else {
 		ymlFile = "0"
 	}
@@ -289,6 +307,7 @@ func check(g *gocui.Gui, v *gocui.View) error {
 	}
 
 	if counter+1 >= len(test.Questions) && test.Topic != "Menu" {
+		module := strconv.Itoa(topicNo)
 		message := []string{string(time.Now().Format(time.RFC822)), player.Name, player.Team, ymlFile, test.Topic, "ENDED"}
 		csvFile.Write(message)
 		csvFile.Flush()
@@ -299,17 +318,17 @@ func check(g *gocui.Gui, v *gocui.View) error {
 		}
 		mdEnd = time.Now()	// stop timer
 		message = []string{string(mdEnd.Format(time.RFC822)),
-				player.Name, player.Team, player.Lead, strconv.Itoa(player.Score), strconv.Itoa(topicNo), timeTaken(mdEnd)}
+				player.Name, player.Team, player.Lead, strconv.Itoa(player.Score), module, timeTaken(mdEnd)}
 		csvStats.Write(message)
 		csvStats.Flush()
 		updatePlayer()
 		OK(csvStats.Error())
 		log.SetOutput(os.Stdout)
-		sendMail()
+		module += "/" + levels
+		sendMail(module)
 		mdStart = time.Now()
 		resetTerm("0")
 	} else {
-
 		return checkResponse(g,v)
 	}
 
@@ -364,14 +383,14 @@ func ask(g *gocui.Gui, v *gocui.View) {
 
 func readTest(y string) {
 	q, err := filepath.EvalSymlinks(askDir)
-	OK(err, "ask directory not found")
+	EOK(errDir, err, "ask " + y + " not found")
 	data, err := ioutil.ReadFile(q + "/" + y + ".yaml")
 	if err != nil {
 		data, err = ioutil.ReadFile(q + "/0" + y + ".yaml")
 	}
-	OK(err)
+	EOK(errDir, err, "ask 0" + y + " not found")
 
-	ok(yaml.Unmarshal([]byte(data), &test))
+	EOK(errDir, yaml.Unmarshal([]byte(data), &test), y + " can't unmarshal")
 }
 
 func resetFrame() {
@@ -392,7 +411,7 @@ func resetTerm(y string) {
 	ymlFile = y
 
 	if player.Name == "nil" || player.Team == "nil" {
-		ymlFile = levelN
+		ymlFile = level
 	}
 	readTest(y)
 	addPlayerDetails()
@@ -416,7 +435,7 @@ func showMenu(v *gocui.View) error {
 	in := response(v)
 
 	if player.Name == "nil" || player.Team == "nil" ||  in == "S" {
-		ymlFile = levelN
+		ymlFile = level
 		resetTerm(ymlFile)
 		return showTeam(v)
 	}
