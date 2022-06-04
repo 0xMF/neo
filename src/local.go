@@ -1,13 +1,16 @@
-
 package main
 
 import "os"
 
-var adminF  = ""
-var level   = ""
-var levels  = ""
+var adminF = ""
+var levelX = ""
+var levels = ""
+
+var preTeam = ""
 var replyTo = ""
 var subject = ""
+
+// --- x ---
 
 var askDir = ""
 var errDir = ""

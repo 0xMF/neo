@@ -1,15 +1,16 @@
 #!/bin/bash
 
 SCR=$0
-#          $1        $2       $3            $4            $5      $6
-# shMail + subject + adminF + player.Name + player.Team + score + doneF
+#          $1        $2       $3            $4        $5            $6      $7
+# shMail + subject + adminF + player.Name + preTeam + player.Team + score + doneF
 SUBJ=$1
 ADMN=$2
 
 FROM=$3
-TEAM=$4
-DONE=$5
-BODY=$6
+PRET=$4
+TEAM=$5
+DONE=$6
+BODY=$7
 
 LN=$(grep -w "${TEAM}" "${ADMN}")
 TO=$(echo "${LN}"| cut -d'|' -f4)
@@ -21,5 +22,5 @@ if [ ! -s "${BODY}" ]; then
 fi
 
 if [[ "${YN}" == "yes" ]]; then
-  tac "${BODY}" | mail -s "${SUBJ}${TEAM} ${DONE}" -S replyto="${FROM}" "${TO}" 2>/dev/null
+  tac "${BODY}" | mail -s "${PRET}${TEAM} ${SUBJ} ${DONE}" -S replyto="${FROM}" "${TO}" 2>/dev/null
 fi

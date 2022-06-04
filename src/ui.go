@@ -25,7 +25,7 @@ func ok(err error, s ...string) error {
 		case 0:
 			return err
 		default:
-			fmt.Print (s[0])
+			fmt.Print(s[0])
 			return errors.Unwrap(fmt.Errorf("%w: %s", err, s[0]))
 		}
 	}
@@ -38,7 +38,7 @@ func OK(err error, s ...string) {
 		case 0:
 			log.Fatal(err)
 		default:
-			log.Fatal (s[0])
+			log.Fatal(s[0])
 			log.Fatal(errors.Unwrap(fmt.Errorf("%w: %s", err, s[0])))
 		}
 	}
@@ -58,10 +58,10 @@ func EOK(epath string, err error, s ...string) {
 		e += "/" + usrname
 		w := ""
 
-		for _,r  := range s {
-			w += fmt.Sprintf("%s\n",r)
+		for _, r := range s {
+			w += fmt.Sprintf("%s\n", r)
 		}
-		file, err := os.OpenFile(e, os.O_APPEND|os.O_CREATE|os.O_WRONLY, logRWrite);
+		file, err := os.OpenFile(e, os.O_APPEND|os.O_CREATE|os.O_WRONLY, logRWrite)
 		defer file.Close()
 		err = os.Chmod(e, logRWrite)
 		OK(err)
@@ -69,7 +69,7 @@ func EOK(epath string, err error, s ...string) {
 		// RFC822  = "02 Jan 06 15:04 MST"
 		// RFC3339 = "2006-01-02T15:04:05Z07:00"
 		//ioutil.WriteFile(e, []byte(fmt.Sprintf("%s: %v\n%s", time.Now().Format(time.RFC822), elog,w)),0240)
-		file.WriteString(fmt.Sprintf("%s: %v\n%s", time.Now().Format(time.RFC822),elog,w))
+		file.WriteString(fmt.Sprintf("%s: %v\n%s", time.Now().Format(time.RFC822), elog, w))
 		log.Printf("%s\n\n", s[0])
 		log.Print("ERROR: email " + replyTo)
 		log.Print("       with a screenshot/picture of this message and a")
@@ -213,13 +213,13 @@ func refresh(n string, s string) {
 	v.SetCursor(0, 0)
 	v.Frame = true
 	term.Update(func(g *gocui.Gui) error {
-			v, err := g.View(n)
-			if err != nil {
-				// handle error
-			}
-			v.Clear()
-			fmt.Fprintf(v, "%v", s)
-			return nil
+		v, err := g.View(n)
+		if err != nil {
+			// handle error
+		}
+		v.Clear()
+		fmt.Fprintf(v, "%v", s)
+		return nil
 	})
 	term.views[n] = handle{View: v, text: s}
 }
