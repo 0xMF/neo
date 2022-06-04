@@ -23,7 +23,7 @@ get_section() {
   read INPUT
   INPUT=$(echo ${INPUT} | tr -cd "[:print:]\n"  | tr '[a-z]' '[A-Z]'| sed 's/ //g')
   TNAME=$(grep -wR ${INPUT} ${FILE} 2>/dev/null | cut -d'|' -f1)
-  TLEAD=$(grep -wR ${INPUT} ${FILE} 2>/dev/null | cut -d'|' -f3)
+  TLEAD=$(grep -wR ${INPUT} ${FILE} 2>/dev/null | cut -d'|' -f2)
 
   if [ -z ${INPUT} ] || [ "${TNAME}" != "${INPUT}" ]; then
     echo -ne "\nInvalid section. Press ENTER and try again."

@@ -1,5 +1,6 @@
 #!/bin/bash
 
-FILE=$3
+TEAM=$1
+FILE=$2
 
-awk -v TEAM=$1 -v PART=$2 -F'|' '$1 == TEAM {print $PART}' $FILE
+grep -w "${TEAM}" $FILE | cut -d'|' -f2

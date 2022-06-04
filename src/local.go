@@ -6,9 +6,10 @@ var adminF = ""
 var levelX = ""
 var levels = ""
 
-var preTeam = ""
+var teamPre = ""
 var replyTo = ""
 var subject = ""
+var subPost = ""
 
 // --- x ---
 

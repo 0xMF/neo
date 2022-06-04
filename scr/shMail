@@ -1,20 +1,21 @@
 #!/bin/bash
 
 SCR=$0
-#          $1        $2       $3            $4        $5            $6      $7
-# shMail + subject + adminF + player.Name + preTeam + player.Team + score + doneF
+#          $1        $2       $3            $4        $5            $6      $7         $8
+# shMail + subject + adminF + player.Name + preTeam + player.Team + score + subjPost + doneF
 SUBJ=$1
 ADMN=$2
 
 FROM=$3
-PRET=$4
+PRFX=$4
 TEAM=$5
 DONE=$6
-BODY=$7
+POST=$7
+BODY=$8
 
 LN=$(grep -w "${TEAM}" "${ADMN}")
-TO=$(echo "${LN}"| cut -d'|' -f4)
-YN=$(echo "${LN}"| cut -d'|' -f5| tr '[A-Z]' '[a-z]')
+TO=$(echo "${LN}" | cut -d'|' -f4)
+YN=$(echo "${LN}" | cut -d'|' -f5 | tr '[A-Z]' '[a-z]')
 
 if [ ! -s "${BODY}" ]; then
   echo "Invalid message content: ${BODY}"
@@ -22,5 +23,7 @@ if [ ! -s "${BODY}" ]; then
 fi
 
 if [[ "${YN}" == "yes" ]]; then
-  tac "${BODY}" | mail -s "${PRET}${TEAM} ${SUBJ} ${DONE}" -S replyto="${FROM}" "${TO}" 2>/dev/null
+  tac "${BODY}" |\
+  awk -F, '(NR == 1){print "Completed level",$6,"in",$7,". Total",$5,"done.\n\n# date,user,team,lead,score,level,time"};{print}' |\
+  mail -s "${PRFX}${TEAM} ${SUBJ} ${DONE} ${POST}" -S replyto="${FROM}" "${TO}" 2>/dev/null
 fi

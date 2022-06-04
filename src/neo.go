@@ -109,24 +109,24 @@ func addPlayerDetails() {
 	test.Questions[0].Ask += pDetails
 }
 
-func lookUp(s string, n string) string {
+func lookUp(t string) string {
 
 	var errBytes bytes.Buffer
-	shLkup = shLkup + " " + s + " " + n + " " + adminF
-	cmd := exec.Command("/bin/bash", "-c", shLkup)
+	lookup := shLkup + " " + t + " " + adminF
+	cmd := exec.Command("/bin/bash", "-c", lookup)
 	stdin, err := cmd.StdinPipe()
 	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
 	defer stdin.Close()
 	out, err := cmd.CombinedOutput()
 	EOK(errDir, err, "couldn't start stdin", errBytes.String())
-	return strings.TrimSuffix(string(out), "\n")
+	return (strings.TrimSuffix(string(out), "\n"))
 }
 
 func completed() int {
 
 	var errBytes bytes.Buffer
-	shDone = shDone + " " + doneF
-	cmd := exec.Command("/bin/bash", "-c", shDone)
+	finished := shDone + " " + doneF
+	cmd := exec.Command("/bin/bash", "-c", finished)
 	stdin, err := cmd.StdinPipe()
 	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
 	defer stdin.Close()
@@ -149,7 +149,8 @@ func initDone2(s int) {
 	var result = strings.Split(string(out), ",")
 	log.Fatal(result)
 	player.Team = result[0]
-	player.Lead = result[1]
+	//player.Lead = result[1]
+	player.Lead = lookUp(player.Team)
 	player.Score = s
 	EOK(errDir, err, "did not finish script", errBytes.String())
 }
@@ -176,7 +177,7 @@ func sendMail(s string) {
 
 	var errBytes bytes.Buffer
 	doneF = logDir + "/" + player.Name + ".done"
-	mail := shMail + " " + player.Name + " " + preTeam + " " + player.Team + " " + s + " " + doneF
+	mail := shMail + " " + player.Name + " " + teamPre + " " + player.Team + " " + s + " " + subPost + " " + doneF
 	cmd := exec.Command("/bin/bash", "-c", mail)
 	//log.Println(cmd.String()[42:])
 	cmd.Stdin = os.Stdin
@@ -192,7 +193,12 @@ func updatePlayer() {
 
 	if player.Team == "nil" {
 		initDone(0)
-		return
+		zero := strconv.Itoa(player.Score)
+		// date,user,team,leader,score,level,time
+		message := []string{string(mdEnd.Format(time.RFC822)),
+			player.Name, player.Team, player.Lead, zero, "", zero + "s"}
+		csvStats.Write(message)
+		csvStats.Flush()
 	}
 
 	var outBytes bytes.Buffer
@@ -209,28 +215,39 @@ func updatePlayer() {
 	var result = strings.Split(outBytes.String(), ",")
 	if len(outBytes.String()) > 0 {
 		player.Team = result[2]
-		player.Lead = result[3]
+		//player.Lead = result[3]
+		player.Lead = lookUp(player.Team)
 		player.Score, _ = strconv.Atoi(result[4])
 		pDetails = "\n\n\t=========================================================================="
 		pDetails += "\n\n\tYou are user " + player.Name + " in section " + player.Team + " with "
-		pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Score) + " modules: "
+		if player.Score == 1 {
+			pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Score) + " module: "
+		} else {
+			if player.Score == 0 {
+				pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Score) + " modules."
+			} else {
+				pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Score) + " modules: "
+			}
+		}
 	}
 
-	outBytes.Reset()
-	shWins = shWins + " " + doneF
-	cmd = exec.Command("bash", "-c", shWins)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = &outBytes
-	cmd.Stderr = &outBytes
-	err = cmd.Start()
-	EOK(errDir, err, "couldn't start wins", outBytes.String())
-	err = cmd.Wait()
-	EOK(errDir, err, "couldn't finish wins", outBytes.String())
-	result = strings.Split(outBytes.String(), ",")
-	for _, si := range result {
-		i, _ := strconv.Atoi(si)
-		done.Modules[i] = true
-		pDetails += si + " "
+	if player.Score > 0 {
+		outBytes.Reset()
+		wins := shWins + " " + doneF
+		cmd = exec.Command("bash", "-c", wins)
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = &outBytes
+		cmd.Stderr = &outBytes
+		err = cmd.Start()
+		EOK(errDir, err, "couldn't start wins", outBytes.String())
+		err = cmd.Wait()
+		EOK(errDir, err, "couldn't finish wins", outBytes.String())
+		result = strings.Split(outBytes.String(), ",")
+		for _, si := range result {
+			i, _ := strconv.Atoi(si)
+			done.Modules[i] = true
+			pDetails += si + " "
+		}
 	}
 	pDetails += "\n\n\t=========================================================================="
 }
@@ -249,6 +266,7 @@ func timeTaken(end time.Time) string {
 
 func check(g *gocui.Gui, v *gocui.View) error {
 	if test.Topic == "Team Selection" {
+		done.Modules[topicNo] = true
 		return showTeam(v)
 	}
 
@@ -266,7 +284,7 @@ func check(g *gocui.Gui, v *gocui.View) error {
 			done.Modules[topicNo] = true
 			player.Score += 1
 		}
-		mdEnd = time.Now() // stop timer
+		mdEnd = time.Now() // stop timer and write: date,user,team,leader,score,level,time
 		message = []string{string(mdEnd.Format(time.RFC822)),
 			player.Name, player.Team, player.Lead, strconv.Itoa(player.Score), module, timeTaken(mdEnd)}
 		csvStats.Write(message)
@@ -421,23 +439,36 @@ func showTeam(v *gocui.View) error {
 
 	if isAnswer(in) { // correct answers show both: answer and congrats message
 		player.Team = in
-		player.Lead = lookUp(in, "2")
+		player.Lead = lookUp(in)
 		player.Score = completed()
 		logTeam()
+		updatePlayer()
 		ymlFile = "0"
 		resetTerm(ymlFile)
-		return showTeam(v)
 	}
 	return nil
 }
 
 func logTeam() {
 
-	message := []string{string(time.Now().Format(time.RFC822)), player.Name, player.Team, ymlFile, test.Topic, "SECTION UPDATED"}
+	message := []string{string(time.Now().Format(time.RFC822)), player.Name, player.Team, ymlFile, test.Topic, "TEAM UPDATE"}
 	csvFile.Write(message)
 	csvFile.Flush()
 
 	message = []string{string(time.Now().Format(time.RFC822)), player.Name, player.Team, player.Lead, strconv.Itoa(player.Score), "", ""}
 	csvStats.Write(message)
 	csvStats.Flush()
+}
+
+func oldLookUp(s string, n string) string {
+
+	var errBytes bytes.Buffer
+	lookup := shLkup + " " + s + " " + n + " " + adminF
+	cmd := exec.Command("/bin/bash", "-c", lookup)
+	stdin, err := cmd.StdinPipe()
+	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
+	defer stdin.Close()
+	out, err := cmd.CombinedOutput()
+	EOK(errDir, err, "couldn't start stdin", errBytes.String())
+	return strings.TrimSuffix(string(out), "\n")
 }

@@ -2,15 +2,14 @@
 
 SCR=$0
 
-DFILE=$1
-FIELD=6
+DONEF=$1
 SCORE=
 
-if [ ! -s "${DFILE}" ]; then
-  >&2 echo "File empty or not found: ${DFILE}"
+if [ ! -s "${DONEF}" ]; then
+  >&2 echo "File empty or not found: ${DONEF}"
   exit 1
 fi
 
-SCORE=$(sort -ut, -nk"${FIELD}","${FIELD}" "${DFILE}" | cut -d, -f"${FIELD}" | tr '\n' ',' | sed 's/,$//')
+SCORE=$(sort -ut, -nk6,6 "${DONEF}" | cut -d, -f6 | tr '\n' ',' | sed 's/,$//')
 
 echo -n ${SCORE}
