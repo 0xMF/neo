@@ -305,7 +305,7 @@ func check(g *gocui.Gui, v *gocui.View) error {
 
 func checkResponse(g *gocui.Gui, v *gocui.View) error {
 
-	yes := "CORRECT! Press Ctrl+D to exit or Enter to continue."
+	yes := "CORRECT! Press Enter to continue or Ctrl+D to exit."
 	in := response(v)
 	if isAnswer(in) { // correct answers show both: answer and congrats message
 		if counter == 0 || term.views["status"].text == yes {
