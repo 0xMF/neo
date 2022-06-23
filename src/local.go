@@ -3,6 +3,7 @@ package main
 import "os"
 
 var adminF = ""
+var entryF = ""
 var levelX = ""
 var levels = ""
 

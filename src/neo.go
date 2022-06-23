@@ -93,7 +93,11 @@ func main() {
 
 	term.views = make(map[string]handle)
 	term.views["header"] = handle{text: ""}
-	term.views["writer"] = handle{text: "\n\t\tAre you ready to play?\n\t\tUse CTRL+D to exit and ENTER to begin"}
+	if data, err := os.ReadFile(entryF); err == nil {
+		term.views["writer"] = handle{text: string(data)}
+	} else {
+		term.views["writer"] = handle{text: "\n\t\tAre you ready to play?\n\t\tUse CTRL+D to exit and ENTER to begin"}
+	}
 	term.views["reader"] = handle{text: ""}
 	term.views["status"] = handle{text: "Press ENTER to begin."}
 
