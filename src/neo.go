@@ -170,7 +170,11 @@ func initDone(s int) {
 	EOK(errDir, err, "couldn't run init script", errBytes.String())
 	err = cmd.Wait()
 	EOK(errDir, err, "couldn't wait", errBytes.String())
+
 	var result = strings.Split(errBytes.String(), ",")
+	if len(result) != 2 {
+		EOK(errDir, errors.New("can't begin"), "error at init", errBytes.String())
+	}
 	player.Team = result[0]
 	player.Lead = result[1]
 	player.Score = s
