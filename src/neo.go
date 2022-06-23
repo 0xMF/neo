@@ -92,7 +92,7 @@ func main() {
 	term.width, term.height = term.Gui.Size()
 
 	term.views = make(map[string]handle)
-	term.views["header"] = handle{text: ""}
+	term.views["header"] = handle{text: version}
 	if data, err := os.ReadFile(entryF); err == nil {
 		term.views["writer"] = handle{text: string(data)}
 	} else {

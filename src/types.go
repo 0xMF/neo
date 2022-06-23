@@ -43,18 +43,20 @@ type handle struct {
 	text string
 }
 
-var mdStart, mdEnd time.Time
 var counter = 0
-var csvFile = new(csv.Writer)
 var csvDone = new(csv.Writer)
-var usrname string
-var topicNo = 0
-var ymlFile = "0"
+var csvFile = new(csv.Writer)
+var csvStats = new(csv.Writer)
 var done Complete
 var doneF string
+var mdStart, mdEnd time.Time
+var pDetails string
+var player Player
 var term Terminal
 var test = Test{}
-var csvStats = new(csv.Writer)
+var topicNo = 0
+var usrname string
 var wg sync.WaitGroup
-var player Player
-var pDetails string
+var ymlFile = "0"
+
+var version = "neo version 1.3.0-beta by Mark Fernandes on 2022-Jun-23."
