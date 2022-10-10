@@ -24,6 +24,8 @@ import (
 
 func main() {
 
+	mdStart = time.Now()
+	mdEnd = time.Now()
 	u, err := user.Current()
 	OK(err)
 	usrname = u.Username
@@ -117,7 +119,7 @@ func lookUp(t string) string {
 
 	var errBytes bytes.Buffer
 	lookup := shLkup + " " + t + " " + adminF
-	cmd := exec.Command("/bin/bash", "-c", lookup)
+	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", lookup)
 	stdin, err := cmd.StdinPipe()
 	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
 	defer stdin.Close()
@@ -130,7 +132,7 @@ func completed() int {
 
 	var errBytes bytes.Buffer
 	finished := shDone + " " + doneF
-	cmd := exec.Command("/bin/bash", "-c", finished)
+	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", finished)
 	stdin, err := cmd.StdinPipe()
 	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
 	defer stdin.Close()
@@ -144,7 +146,7 @@ func completed() int {
 func initDone2(s int) {
 
 	var errBytes bytes.Buffer
-	cmd := exec.Command("/bin/bash", "-c", shDone)
+	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", shDone)
 	stdin, err := cmd.StdinPipe()
 	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
 	defer stdin.Close()
@@ -162,7 +164,7 @@ func initDone2(s int) {
 func initDone(s int) {
 
 	var errBytes bytes.Buffer
-	cmd := exec.Command("/bin/bash", "-c", shInit)
+	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", shInit)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = &errBytes
@@ -186,7 +188,7 @@ func sendMail(s string) {
 	var errBytes bytes.Buffer
 	doneF = logDir + "/" + player.Name + ".done"
 	mail := shMail + " " + player.Name + " " + teamPre + " " + player.Team + " " + s + " " + subPost + " " + doneF
-	cmd := exec.Command("/bin/bash", "-c", mail)
+	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", mail)
 	//log.Println(cmd.String()[42:])
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -212,7 +214,7 @@ func updatePlayer() {
 	var outBytes bytes.Buffer
 	doneF = logDir + "/" + player.Name + ".done"
 	cli := "/usr/bin/tail -1 " + doneF
-	cmd := exec.Command("bash", "-c", cli)
+	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", cli)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = &outBytes
 	cmd.Stderr = &outBytes
@@ -242,7 +244,7 @@ func updatePlayer() {
 	if player.Score > 0 {
 		outBytes.Reset()
 		wins := shWins + " " + doneF
-		cmd = exec.Command("bash", "-c", wins)
+		cmd = exec.Command("/usr/bin/bash", "--noprofile", "-c", wins)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = &outBytes
 		cmd.Stderr = &outBytes
@@ -472,7 +474,7 @@ func oldLookUp(s string, n string) string {
 
 	var errBytes bytes.Buffer
 	lookup := shLkup + " " + s + " " + n + " " + adminF
-	cmd := exec.Command("/bin/bash", "-c", lookup)
+	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", lookup)
 	stdin, err := cmd.StdinPipe()
 	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
 	defer stdin.Close()
