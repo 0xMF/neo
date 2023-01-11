@@ -1,0 +1,8 @@
+[
+  {"name": "quiz1.course101AA", "dest": "crs1-aa",     "path": "path/to/topDir"},
+  {"name": "quiz2.course101AA", "dest": "crs1-a2",     "path": "path/to/topDir"},
+  {"name": "quiz3.course101BB", "dest": "crs1-bb",     "path": "path/to/topDir"},
+  {"name": "quiz4.course101BB", "dest": "crs1-b2",     "path": "path/to/topDir"},
+  {"name": "final.course202AA", "dest": "crs2-aa-ft",  "path": "path/to/topDir"},
+  {"name": "final.course303BB", "dest": "crs3-bb-fe",  "path": "path/to/topDir"}
+]
