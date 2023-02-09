@@ -1,29 +1,60 @@
 #!/bin/bash
 
 SCR=$0
-#          $1        $2       $3            $4        $5            $6      $7         $8
-# shMail + subject + adminF + player.Name + preTeam + player.Team + score + subjPost + doneF
-SUBJ=$1
-ADMN=$2
+#          $1        $2       $3            $4           $5       $6
+# shMail + adminF + doneF + player.Name + player.Team + score + subject
+ADMN=$1
+BODY=$2
+WHOM=$3
+TEAM=$4
+DONE="#$(echo $5 | cut -d/ -f1)."
+FULL=$(echo $5 | cut -d/ -f2)
+SUBJ=$6
 
-FROM=$3
-PRFX=$4
-TEAM=$5
-DONE=$6
-POST=$7
-BODY=$8
 
-LN=$(grep -w "${TEAM}" "${ADMN}")
-TO=$(echo "${LN}" | cut -d'|' -f4)
-YN=$(echo "${LN}" | cut -d'|' -f5 | tr '[A-Z]' '[a-z]')
+if [ ! -s "${ADMN}" ]; then
+  echo "Missing admin file"
+  exit 1
+fi
 
 if [ ! -s "${BODY}" ]; then
   echo "Invalid message content: ${BODY}"
   exit 1
 fi
 
-if [[ "${YN}" == "yes" ]]; then
+##- Admin: $1/adminF/ADMN
+#     Contact: first.last
+#     Domains: example.org, example.com
+#     Team    | Lead            | Username    | Email                   | Send Completion Emails
+#     ABC     | Mark Fernandes  | first.last  | first.last@example.com  | yes (yes or no)
+DOMAINS="$(grep -w "Domains:" "${ADMN}" | cut -d: -f2 | sed 's/ //g' | tr '[A-Z]' '[a-z]')"
+CONTACT="$(grep -w "Contact:" "${ADMN}" | cut -d: -f2 | sed 's/ //g')@$(echo "${DOMAINS}" | cut -d, -f2)"
+
+##- Team: LEAD
+LINE=$(grep -w "${TEAM}" "${ADMN}")
+LEAD=$(echo "${LINE}" | cut -d'|' -f4)
+YORN=$(echo "${LINE}" | cut -d'|' -f5 | tr '[A-Z]' '[a-z]')
+
+##- Player: $3/WHOM, $2/doneF
+#     1,                    2,      Team, Lead,           Done, Current,  7
+#     01 Jan 70 00:00 GMT,  player, ABC,  Mark Fernandes, 5,    6,        12m34s
+LINE=$(tail -1 "${BODY}")
+LINE="${LINE},${FULL}"
+WHOM="${WHOM}@$(echo "${DOMAINS}" | cut -d, -f1)"
+
+[ -s "${SCR}"-pre.local ] && source "${SCR}"-pre.local
+
+if [[ "${YORN}" == "yes" ]]; then
+  echo "${LINE}" |\
+    awk -F, '(NR == 1){print "Completed #"$6,"on",$1".\nTotal:",$5,"of",$NF,"done.";}' |\
+    mail -s "${SUBJ} ${DONE}" -c "${LEAD}" -S replyto="${CONTACT}" "${WHOM}" 2>/dev/null
+
   tac "${BODY}" |\
-  awk -F, '(NR == 1){print "Completed level",$6,"in",$7,". Total",$5,"done.\n\n# date,user,team,lead,score,level,time"};{print}' |\
-  mail -s "${PRFX}${TEAM} ${SUBJ} ${DONE} ${POST}" -S replyto="${FROM}" "${TO}" 2>/dev/null
+    awk -F, '(NR == 1)\
+      {print "Completed #"$6" in "$7". Total "$5" done.\n\n# date,user,team,lead,done,current,time"};{print}' |\
+    mail -s "${SUBJ} ${DONE}" -S replyto="${WHOM}" "${LEAD}" 2>/dev/null
+else
+  echo "${LINE}" |\
+    awk -F, '(NR == 1){print "Completed #"$6,"on",$1".\nTotal:",$5,"of",$NF,"done.";}' |\
+    mail -s "${SUBJ} ${DONE}" -S replyto="${CONTACT}" "${WHOM}" 2>/dev/null
 fi

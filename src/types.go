@@ -17,10 +17,10 @@ type Test struct {
 }
 
 type Player struct {
-	Name  string
-	Team  string
-	Lead  string
-	Score int
+	Name string
+	Team string
+	Lead string
+	Done int
 }
 
 type Complete struct {
@@ -59,4 +59,4 @@ var usrname string
 var wg sync.WaitGroup
 var ymlFile = "0"
 
-var version = "neo version 1.3.3-beta by Mark Fernandes on 2022-Oct-12."
+var version = "neo version 1.4.0-beta by Mark Fernandes on 2023-Feb-09."

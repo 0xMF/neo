@@ -72,7 +72,7 @@ func main() {
 
 	updatePlayer()
 	if player.Team == "nil" || player.Lead == "nil" {
-		ymlFile = levelX
+		ymlFile = season
 	} else {
 		ymlFile = "0"
 	}
@@ -157,7 +157,7 @@ func initDone2(s int) {
 	player.Team = result[0]
 	//player.Lead = result[1]
 	player.Lead = lookUp(player.Team)
-	player.Score = s
+	player.Done = s
 	EOK(errDir, err, "did not finish script", errBytes.String())
 }
 
@@ -179,7 +179,7 @@ func initDone(s int) {
 	}
 	player.Team = result[0]
 	player.Lead = result[1]
-	player.Score = s
+	player.Done = s
 	EOK(errDir, err, "did not finish script", errBytes.String())
 }
 
@@ -187,7 +187,8 @@ func sendMail(s string) {
 
 	var errBytes bytes.Buffer
 	doneF = logDir + "/" + player.Name + ".done"
-	mail := shMail + " " + player.Name + " " + teamPre + " " + player.Team + " " + s + " " + subPost + " " + doneF
+	subject := "'" + course + player.Team + " " + message + "'"
+	mail := shMail + " " + doneF + " " + player.Name + " " + player.Team + " " + s + " " + subject
 	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", mail)
 	//log.Println(cmd.String()[42:])
 	cmd.Stdin = os.Stdin
@@ -203,8 +204,8 @@ func updatePlayer() {
 
 	if player.Team == "nil" {
 		initDone(0)
-		zero := strconv.Itoa(player.Score)
-		// date,user,team,leader,score,level,time
+		zero := strconv.Itoa(player.Done)
+		// date,user,team,lead,done,module,time
 		message := []string{string(mdEnd.Format(time.RFC822)),
 			player.Name, player.Team, player.Lead, zero, "", zero + "s"}
 		csvStats.Write(message)
@@ -227,21 +228,21 @@ func updatePlayer() {
 		player.Team = result[2]
 		//player.Lead = result[3]
 		player.Lead = lookUp(player.Team)
-		player.Score, _ = strconv.Atoi(result[4])
+		player.Done, _ = strconv.Atoi(result[4])
 		pDetails = "\n\n\t=========================================================================="
 		pDetails += "\n\n\tYou are user " + player.Name + " in section " + player.Team + " with "
-		if player.Score == 1 {
-			pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Score) + " module: "
+		if player.Done == 1 {
+			pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Done) + " module: "
 		} else {
-			if player.Score == 0 {
-				pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Score) + " modules."
+			if player.Done == 0 {
+				pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Done) + " modules."
 			} else {
-				pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Score) + " modules: "
+				pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Done) + " modules: "
 			}
 		}
 	}
 
-	if player.Score > 0 {
+	if player.Done > 0 {
 		outBytes.Reset()
 		wins := shWins + " " + doneF
 		cmd = exec.Command("/usr/bin/bash", "--noprofile", "-c", wins)
@@ -292,17 +293,17 @@ func check(g *gocui.Gui, v *gocui.View) error {
 
 		if !done.Modules[topicNo] {
 			done.Modules[topicNo] = true
-			player.Score += 1
+			player.Done += 1
 		}
-		mdEnd = time.Now() // stop timer and write: date,user,team,leader,score,level,time
+		mdEnd = time.Now() // stop timer and write: date,user,team,lead,done,module,time
 		message = []string{string(mdEnd.Format(time.RFC822)),
-			player.Name, player.Team, player.Lead, strconv.Itoa(player.Score), module, timeTaken(mdEnd)}
+			player.Name, player.Team, player.Lead, strconv.Itoa(player.Done), module, timeTaken(mdEnd)}
 		csvStats.Write(message)
 		csvStats.Flush()
 		updatePlayer()
 		OK(csvStats.Error())
 		log.SetOutput(os.Stdout)
-		module += "/" + levels
+		module += "/" + modules
 		sendMail(module)
 		mdStart = time.Now()
 		resetTerm("0")
@@ -389,7 +390,7 @@ func resetTerm(y string) {
 	ymlFile = y
 
 	if player.Name == "nil" || player.Team == "nil" {
-		ymlFile = levelX
+		ymlFile = season
 	}
 	readTest(y)
 	addPlayerDetails()
@@ -413,7 +414,7 @@ func showMenu(v *gocui.View) error {
 	in := response(v)
 
 	if player.Name == "nil" || player.Team == "nil" || in == "S" {
-		ymlFile = levelX
+		ymlFile = season
 		resetTerm(ymlFile)
 		return showTeam(v)
 	}
@@ -450,7 +451,7 @@ func showTeam(v *gocui.View) error {
 	if isAnswer(in) { // correct answers show both: answer and congrats message
 		player.Team = in
 		player.Lead = lookUp(in)
-		player.Score = completed()
+		player.Done = completed()
 		logTeam()
 		updatePlayer()
 		ymlFile = "0"
@@ -465,7 +466,7 @@ func logTeam() {
 	csvFile.Write(message)
 	csvFile.Flush()
 
-	message = []string{string(time.Now().Format(time.RFC822)), player.Name, player.Team, player.Lead, strconv.Itoa(player.Score), "", ""}
+	message = []string{string(time.Now().Format(time.RFC822)), player.Name, player.Team, player.Lead, strconv.Itoa(player.Done), "", ""}
 	csvStats.Write(message)
 	csvStats.Flush()
 }
