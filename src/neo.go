@@ -31,6 +31,8 @@ func main() {
 	usrname = u.Username
 	player.Name = u.Username
 
+	verify()
+
 	l, err := filepath.EvalSymlinks(logDir)
 	EOK(errDir, err, fmt.Sprintf("Cannot open logDir"))
 
@@ -141,24 +143,6 @@ func completed() int {
 	n, err := strconv.Atoi(strings.TrimSuffix(string(out), "\n"))
 	EOK(errDir, err, "couldn't convert stdin", errBytes.String())
 	return n
-}
-
-func initDone2(s int) {
-
-	var errBytes bytes.Buffer
-	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", shDone)
-	stdin, err := cmd.StdinPipe()
-	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
-	defer stdin.Close()
-	out, err := cmd.CombinedOutput()
-	EOK(errDir, err, "couldn't start stdin", errBytes.String())
-	var result = strings.Split(string(out), ",")
-	log.Fatal(result)
-	player.Team = result[0]
-	//player.Lead = result[1]
-	player.Lead = lookUp(player.Team)
-	player.Done = s
-	EOK(errDir, err, "did not finish script", errBytes.String())
 }
 
 func initDone(s int) {
@@ -469,17 +453,4 @@ func logTeam() {
 	message = []string{string(time.Now().Format(time.RFC822)), player.Name, player.Team, player.Lead, strconv.Itoa(player.Done), "", ""}
 	csvStats.Write(message)
 	csvStats.Flush()
-}
-
-func oldLookUp(s string, n string) string {
-
-	var errBytes bytes.Buffer
-	lookup := shLkup + " " + s + " " + n + " " + adminF
-	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", lookup)
-	stdin, err := cmd.StdinPipe()
-	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
-	defer stdin.Close()
-	out, err := cmd.CombinedOutput()
-	EOK(errDir, err, "couldn't start stdin", errBytes.String())
-	return strings.TrimSuffix(string(out), "\n")
 }

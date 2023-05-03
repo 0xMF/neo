@@ -70,7 +70,11 @@ func EOK(epath string, err error, s ...string) {
 		// RFC3339 = "2006-01-02T15:04:05Z07:00"
 		//ioutil.WriteFile(e, []byte(fmt.Sprintf("%s: %v\n%s", time.Now().Format(time.RFC822), elog,w)),0240)
 		file.WriteString(fmt.Sprintf("%s: %v\n%s", time.Now().Format(time.RFC822), elog, w))
-		log.Printf("ERROR: %s\n\n", s[0])
+		if len(s) > 0 {
+			log.Printf("ERROR: %s\n\n", s[0])
+		} else {
+			log.Printf("ERROR: %s\n\n", "Unknown issue discovered.")
+		}
 		log.Printf("Email: %s\n", replyTo)
 		log.Print("       with a screenshot/picture of this message and a")
 		log.Fatal("       description of what happened before this error.")
