@@ -33,7 +33,8 @@ TIMESTAMP=$(/usr/bin/date +"%Y%m%d_%H:%M%S")
 if [[ -d /home/${OWNER}/.neo/${LOGSD}/${ITEM} ]]; then
     cd /home/${OWNER}/.neo/${LOGSD}/${ITEM}
 else
-   echo -e "\nERROR: neo cannot save your results. Email ${MAILER} with this error message.\n" >&2
+   >&2 echo -e "\nERROR: neo cannot save your results."\
+               "\n       Email ${MAILER} with this error message.\n"
    exit 1
 fi
 /usr/bin/touch ${logF}
@@ -49,7 +50,8 @@ if [[ -d /home/${OWNER}/${VAULT} && -r /home/${OWNER}/${VAULT}/${TOPIC} ]]; then
   WORDS=$(/usr/bin/wc -w /home/${OWNER}/${VAULT}/${TOPIC} | /usr/bin/cut -d' ' -f1)
   /usr/bin/cat /home/${OWNER}/${VAULT}/${TOPIC} >> ${logF}
 else
-  >&2 echo "ERROR! Invalid setup, so nothing to see here."
+  >&2 echo -e "\nERROR: Invalid setup, so nothing to see here."\
+              "\n       Email ${MAILER} with this error message.\n"
   exit 1
 fi
 
@@ -68,7 +70,9 @@ case ${editor} in
     #e) /usr/bin/emacs ${logF} ;;
     n) /usr/bin/nano ${logF} ;;
     v) /usr/bin/vim ${logF} ;;
-    *) >&2 echo "ERROR! Did not find your editor."; exit 1 ;;
+    *) >&2 echo -n "\nERROR! Did not find your editor."\
+                   "\n       Email ${MAILER} with this error message.\n" ;
+       exit 1 ;;
 esac
 
 if [[ -d all ]]; then
@@ -96,4 +100,4 @@ then
     [[ $? -eq 0 ]] && { echo "Congratulations!! Your mission was successful." >&2 ; exit ; }
 fi
 
-echo "ERROR: Did not finish, contact ${MAILER}" >&2
+>&2 echo -n "ERROR: Did not finish, contact ${MAILER} with this error message."
