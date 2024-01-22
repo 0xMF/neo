@@ -16,7 +16,7 @@ get_section() {
   clear
 
   echo "-----------------------------------------------------------"
-  sed '/#/d;/^$/d' "${FILE}" | awk -F'|' '{print $1, $2}'| column
+  sed '/#/d;/^$/d' "${FILE}" | awk -F'|' '{print $1, $2}'| column -x
   echo "-----------------------------------------------------------"
   echo -n "Enter the 3 letter code for your section? "
 

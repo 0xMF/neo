@@ -59,4 +59,4 @@ var usrname string
 var wg sync.WaitGroup
 var ymlFile = "0"
 
-var version = "neo version 1.5.2-beta by Mark Fernandes on 2023-May-29."
+var version = "neo version 1.5.3-beta by Mark Fernandes on 2024-Jan-22."
