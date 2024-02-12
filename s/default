@@ -66,13 +66,13 @@ echo "What editior do you wish to edit with?" >&2
 #echo "     (n)ano" >&2
 echo "     (v)im"  >&2
 #read -p  "Your choice n or  v: " editor
-read -p  "Only editor choice is (v): " editor
+read -p  "Enter v for vim: " editor
 
 case ${editor} in
     #e) /usr/bin/emacs ${logF} ;;
     #n) /usr/bin/nano ${logF} ;;
     v) /usr/bin/vim ${logF} ;;
-    *) >&2 echo -e "\nERROR! No input or your selected editor was not an option"\
+    *) >&2 echo -e "\nERROR! No input given or your preferred editor was not an option"\
                    "\n       otherwise email ${MAILER} with this error message.\n" ;
        exit 1 ;;
 esac
