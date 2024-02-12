@@ -5,7 +5,7 @@
 # Purpose: handles student missions on matrix
 # Creator: Mark Fernandes.
 # Created: March 25, 2020
-# Updated: Oct 31, 2023
+# Updated: Feb 12, 2024
 # License: MIT
 
 OWNER=mark.fernandes
@@ -60,18 +60,20 @@ if [[ -d all ]]; then
   /usr/bin/chmod 060 all/${logF}-01
 fi
 
-echo "What editior do you wish to edit with? Your choices are:" >&2
+#echo "What editior do you wish to edit with? Your choices are:" >&2
+echo "What editior do you wish to edit with?" >&2
 #echo "     (e)macs" >&2
-echo "     (n)ano" >&2
+#echo "     (n)ano" >&2
 echo "     (v)im"  >&2
-read -p  "Your choice n or  v: " editor
+#read -p  "Your choice n or  v: " editor
+read -p  "Only editor choice is (v): " editor
 
 case ${editor} in
     #e) /usr/bin/emacs ${logF} ;;
-    n) /usr/bin/nano ${logF} ;;
+    #n) /usr/bin/nano ${logF} ;;
     v) /usr/bin/vim ${logF} ;;
-    *) >&2 echo -n "\nERROR! Did not find your editor."\
-                   "\n       Email ${MAILER} with this error message.\n" ;
+    *) >&2 echo -e "\nERROR! No input or your selected editor was not an option"\
+                   "\n       otherwise email ${MAILER} with this error message.\n" ;
        exit 1 ;;
 esac
 
