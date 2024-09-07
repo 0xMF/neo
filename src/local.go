@@ -13,7 +13,7 @@ var course = ""
 var ground = ""
 var season = ""
 var secret = ""
-var server = ""
+var server = []string{}
 
 var folder = ""
 var adminF = ""
@@ -52,7 +52,14 @@ func verify() {
 	out, err := cmd.CombinedOutput()
 	EOK(errDir, err, fmt.Sprintf("Cannot get output to verify server authenticity"))
 	s := strings.TrimSuffix(string(out), "\n")
-	if s != server {
+	auth := false
+	for _,v := range server {
+		if s == v {
+			auth = true
+			break
+		}
+	}
+	if ! auth {
 		EOK(errDir, errors.New("Unable to confirm server: "+usrname+" "+s))
 	}
 
