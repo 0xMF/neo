@@ -15,14 +15,14 @@ fi
 get_section() {
   clear
 
-  echo "-----------------------------------------------------------"
+  echo "------------------------------------------------------------------"
   sed '/#/d;/^$/d' "${FILE}" | awk -F'|' '{print $1, $2}'| column -x
-  echo "-----------------------------------------------------------"
+  echo "------------------------------------------------------------------"
   echo -n "Enter the 3 letter code for your section? "
 
   read INPUT
   INPUT=$(echo ${INPUT} | tr -cd "[:print:]\n"  | tr '[a-z]' '[A-Z]'| sed 's/ //g')
-  TNAME=$(grep -wR ${INPUT} ${FILE} 2>/dev/null | cut -d'|' -f1)
+  TNAME=$(grep -wR ${INPUT} ${FILE} 2>/dev/null | cut -d'|' -f1 | tr '[a-z]' '[A-Z]')
   TLEAD=$(grep -wR ${INPUT} ${FILE} 2>/dev/null | cut -d'|' -f2)
 
   if [ -z ${INPUT} ] || [ "${TNAME}" != "${INPUT}" ]; then

@@ -10,6 +10,6 @@ if [ ! -s "${DONEF}" ]; then
   exit 1
 fi
 
-SCORE=$(sort -ut, -nk6,6 "${DONEF}" | cut -d, -f6 | tr '\n' ',' | sed 's/,$//')
+SCORE=$(sort -ut, -nk5,5 "${DONEF}" | cut -d, -f5 | tr '\n' ',' | sed 's/,$//')
 
 echo -n ${SCORE}
