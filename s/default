@@ -5,7 +5,7 @@
 # Purpose: handles student missions on matrix
 # Creator: Mark Fernandes.
 # Created: March 25, 2020
-# Updated: Feb 12, 2024
+# Updated: Apr 09, 2025
 # License: MIT
 
 OWNER=mark.fernandes
@@ -37,8 +37,18 @@ else
                "\n       Email ${MAILER} with this error message.\n"
    exit 1
 fi
-/usr/bin/touch ${logF}
-/usr/bin/chmod 660 ${logF}
+
+if /usr/bin/touch ${logF}; then
+  /usr/bin/chmod 660 ${logF}
+else
+   local q=$(whereis quota | cut -d: -f2 | cut -d' ' -f2)
+   [ -s $q ] && $q
+   unset q
+
+   >&2 echo -e "\nERROR: neo cannot save your results."\
+               "\n       Email ${MAILER} with this error message.\n"
+   exit 1
+fi
 
 if [[ -d all ]]; then
   /usr/bin/cp ${logF} all/${logF}-00
