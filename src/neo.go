@@ -277,7 +277,10 @@ func check(g *gocui.Gui, v *gocui.View) error {
 
 		if !done.Modules[topicNo] {
 			done.Modules[topicNo] = true
-			player.Done += 1
+			m, _ := strconv.Atoi(modules)
+			if player.Done < m {
+				player.Done += 1
+			}
 		}
 		mdEnd = time.Now() // stop timer and write: date,user,team,lead,done,module,time
 		message = []string{string(mdEnd.Format(time.RFC822)),
