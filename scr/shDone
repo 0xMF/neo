@@ -8,4 +8,4 @@ if [ ! -s "$FILE" ]; then
   exit 1
 fi
 
-awk -F, '$6 != ""' $FILE | sort -ut, -nk6,6 | wc -l
+awk -F, '$6 != ""' $FILE | sort -ut, -nk5,5 | wc -l
