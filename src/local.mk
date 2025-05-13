@@ -10,7 +10,7 @@ endif
 target: ~/bin/neo.$(EXT)
 
 ~/bin/neo.$(EXT): neo
-	chmod 701 neo
+	chmod 711 neo
 	mv neo ~/bin/neo.$(EXT)
 
 clean::

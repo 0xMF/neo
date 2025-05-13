@@ -53,13 +53,13 @@ func verify() {
 	EOK(errDir, err, fmt.Sprintf("Cannot get output to verify server authenticity"))
 	s := strings.TrimSuffix(string(out), "\n")
 	auth := false
-	for _,v := range server {
+	for _, v := range server {
 		if s == v {
 			auth = true
 			break
 		}
 	}
-	if ! auth {
+	if !auth {
 		EOK(errDir, errors.New("Unable to confirm server: "+usrname+" "+s))
 	}
 
