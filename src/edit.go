@@ -17,7 +17,7 @@ func edit() {
 	mission = path.Dir(exe) + "/s/" + mission
 	log.Printf("Begin: %v", err)
 
-	mCmd := exec.Command("/bin/bash", "-c", mission)
+	mCmd := exec.Command("/bin/bash", "--norc", "--noprofile", "-c", mission)
 	mCmd.Stdin = os.Stdin
 	mCmd.Stdout = os.Stdout
 	mCmd.Stderr = os.Stderr

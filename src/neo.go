@@ -121,7 +121,8 @@ func lookUp(t string) string {
 
 	var errBytes bytes.Buffer
 	lookup := shLkup + " " + t + " " + adminF
-	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", lookup)
+	cmd := exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", lookup)
+
 	stdin, err := cmd.StdinPipe()
 	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
 	defer stdin.Close()
@@ -134,7 +135,7 @@ func completed() int {
 
 	var errBytes bytes.Buffer
 	finished := shDone + " " + doneF
-	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", finished)
+	cmd := exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", finished)
 	stdin, err := cmd.StdinPipe()
 	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
 	defer stdin.Close()
@@ -148,7 +149,7 @@ func completed() int {
 func initDone(s int) {
 
 	var errBytes bytes.Buffer
-	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", shInit)
+	cmd := exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", shInit)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = &errBytes
@@ -173,7 +174,7 @@ func sendMail(s string) {
 	doneF = logDir + "/" + player.Name + ".done"
 	subject := "'" + course + player.Team + " " + message + "'"
 	mail := shMail + " " + doneF + " " + player.Name + " " + player.Team + " " + s + " " + subject
-	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", mail)
+	cmd := exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", mail)
 	//log.Println(cmd.String()[42:])
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -199,7 +200,7 @@ func updatePlayer() {
 	var outBytes bytes.Buffer
 	doneF = logDir + "/" + player.Name + ".done"
 	cli := "/usr/bin/tail -1 " + doneF
-	cmd := exec.Command("/usr/bin/bash", "--noprofile", "-c", cli)
+	cmd := exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", cli)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = &outBytes
 	cmd.Stderr = &outBytes
@@ -229,7 +230,7 @@ func updatePlayer() {
 	if player.Done > 0 {
 		outBytes.Reset()
 		wins := shWins + " " + doneF
-		cmd = exec.Command("/usr/bin/bash", "--noprofile", "-c", wins)
+		cmd = exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", wins)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = &outBytes
 		cmd.Stderr = &outBytes
