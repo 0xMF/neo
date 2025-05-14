@@ -22,7 +22,7 @@ type Location struct {
 func Resolve(h, p, w string) error {
 	mission = h + "/" + p + "/" + w + "/s/" + mission
 
-	mCmd := exec.Command("/bin/bash", "-c", mission)
+	mCmd := exec.Command("/bin/bash", "--norc", "--noprofile", "--rcfile", "/dev/null", "-c", mission)
 	mCmd.Stdin = os.Stdin
 	mCmd.Stdout = os.Stdout
 	mCmd.Stderr = os.Stderr
