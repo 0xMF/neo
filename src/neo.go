@@ -70,6 +70,9 @@ func main() {
 	if fi.Size() <= 10 {
 		player.Team = "nil"
 		player.Lead = "nil"
+		message := []string{"timestamp", "user", "team", "lead", "total_done", "current_module", "time_taken"}
+		csvStats.Write(message)
+		csvStats.Flush()
 	}
 
 	updatePlayer()

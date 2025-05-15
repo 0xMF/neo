@@ -50,8 +50,8 @@ if [[ "${YORN}" == "yes" ]]; then
     mail -s "${SUBJ} ${DONE}" -c "${LEAD}" -S replyto="${CONTACT}" "${WHOM}" 2>/dev/null
 
   tac "${BODY}" |\
-    awk -F, '(NR == 1)\
-      {print "Completed #"$6" in "$7". Total "$5" done.\n\n# date,user,team,lead,done,current,time"};{print}' |\
+    awk -F, ' (NR == 1) {print "Completed #"$6" in "$7". Total "$5" done.\n\n# timestamp,user,team,lead,total_done,current_module,time_taken"};
+              ($5 ~ /[1-9][0-9]*/) {print}' |\
     mail -s "${SUBJ} ${DONE}" -S replyto="${WHOM}" "${LEAD}" 2>/dev/null
 else
   echo "${LINE}" |\
