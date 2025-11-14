@@ -219,14 +219,13 @@ func updatePlayer() {
 		player.Done, _ = strconv.Atoi(result[4])
 		pDetails = "\n\n\t=========================================================================="
 		pDetails += "\n\n\tYou are user " + player.Name + " in section " + player.Team + " with "
-		if player.Done == 1 {
+		switch player.Done {
+		case 1:
 			pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Done) + " module: "
-		} else {
-			if player.Done == 0 {
-				pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Done) + " modules."
-			} else {
-				pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Done) + " modules: "
-			}
+		case 0:
+			pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Done) + " modules."
+		default:
+			pDetails += player.Lead + ".\n\tYou completed " + strconv.Itoa(player.Done) + " modules: "
 		}
 	}
 
@@ -442,7 +441,7 @@ func showTeam(v *gocui.View) error {
 	if isAnswer(in) { // correct answers show both: answer and congrats message
 		player.Team = in
 		player.Lead = lookUp(in)
-		player.Done = completed()
+		player.Done = completed() - 1 // HACK! Fixes bug when Team Change happens
 		logTeam()
 		updatePlayer()
 		ymlFile = "0"
