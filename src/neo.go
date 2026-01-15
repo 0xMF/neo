@@ -441,7 +441,7 @@ func showTeam(v *gocui.View) error {
 	if isAnswer(in) { // correct answers show both: answer and congrats message
 		player.Team = in
 		player.Lead = lookUp(in)
-		player.Done = completed() - 1 // HACK! Fixes bug when Team Change happens
+		player.Done = completed()
 		logTeam()
 		updatePlayer()
 		ymlFile = "0"
