@@ -95,6 +95,13 @@ func main() {
 	OK(err)
 	defer term.Gui.Close()
 
+	// Save gocui's exact raw terminal settings
+	sttyCmd := exec.Command("/usr/bin/stty", "-g")
+	sttyCmd.Stdin = os.Stdin
+	if out, err := sttyCmd.Output(); err == nil {
+		rawState = strings.TrimSpace(string(out))
+	}
+
 	term.Mouse = false
 	term.InputEsc = false
 	term.Gui.Cursor = true
@@ -377,6 +384,11 @@ func resetFrame() {
 }
 
 func resetTerm(y string) {
+	if rawState != "" {
+		sttyCmd := exec.Command("/usr/bin/stty", rawState)
+		sttyCmd.Stdin = os.Stdin
+		_ = sttyCmd.Run()
+	}
 	counter = 0
 	topicNo = 0
 	ymlFile = y

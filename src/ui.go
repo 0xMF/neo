@@ -66,6 +66,8 @@ func EOK(epath string, err error, s ...string) {
 		err = os.Chmod(e, logRWrite)
 		OK(err)
 
+		if term.Gui != nil { term.Gui.Close() }
+
 		// RFC822  = "02 Jan 06 15:04 MST"
 		// RFC3339 = "2006-01-02T15:04:05Z07:00"
 		//ioutil.WriteFile(e, []byte(fmt.Sprintf("%s: %v\n%s", time.Now().Format(time.RFC822), elog,w)),0240)
@@ -190,6 +192,21 @@ func makeView(g *gocui.Gui, s size) (*gocui.View, error) {
 
 	if s.name == "reader" {
 		v.Editable = true
+		v.Editable = true
+		v.Editor = gocui.EditorFunc(func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) {
+			switch {
+			case key == gocui.KeyEnter || key == gocui.KeyCtrlJ || ch == '\r' || ch == '\n':
+				return
+
+			case key == gocui.KeyCtrlC || key == gocui.KeyCtrlD:
+				return
+
+			case ch > 0 && ch < 32:
+				return
+			}
+
+			gocui.DefaultEditor.Edit(v, key, ch, mod)
+		})
 	} else {
 		v.Editable = false
 	}
@@ -212,17 +229,21 @@ func nextView(g *gocui.Gui, v *gocui.View) error {
 
 // one refresh to rule them all
 func refresh(n string, s string) {
-	v := term.views[n].View
-	v.Clear()
-	v.SetCursor(0, 0)
-	v.Frame = true
 	term.Update(func(g *gocui.Gui) error {
 		v, err := g.View(n)
 		if err != nil {
-			// handle error
+			return nil // Do not return a non-nil error here, or g.MainLoop() will exit!
 		}
+
 		v.Clear()
-		fmt.Fprintf(v, "%v", s)
+		_ = v.SetCursor(0, 0)
+		_ = v.SetOrigin(0, 0)
+		v.Frame = true
+
+		fmt.Fprintf(v, "%s", s)
+
+		// Update your cached map safely on the main UI thread with the live View pointer
+		term.views[n] = handle{View: v, text: s}
 		return nil
 	})
 	term.views[n] = handle{View: v, text: s}

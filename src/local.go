@@ -38,9 +38,11 @@ var shWins = folder + "/shWins "
 var logRWrite os.FileMode = 0244
 var logUpdate os.FileMode = 0644
 
+var rawState string
+
 func verify() {
 
-	srv := "/bin/hostname | /usr/bin/awk -F. '{print $(NF-1),$NF}' | /bin/sed 's| |.|g'"
+	srv := "/bin/hostname -f | /usr/bin/awk -F. '{print $(NF-1),$NF}' | /bin/sed 's| |.|g'"
 	c := " | /usr/bin/cut -d'/' -f1-3"
 
 	// verify server
