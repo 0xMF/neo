@@ -31,6 +31,7 @@ func main() {
 	usrname = u.Username
 	player.Name = u.Username
 
+	safeEnv()
 	verify()
 
 	l, err := filepath.EvalSymlinks(logDir)
@@ -95,6 +96,13 @@ func main() {
 	OK(err)
 	defer term.Gui.Close()
 
+	// Save gocui's exact raw terminal settings
+	sttyCmd := exec.Command("/usr/bin/stty", "-g")
+	sttyCmd.Stdin = os.Stdin
+	if out, err := sttyCmd.Output(); err == nil {
+		rawState = strings.TrimSpace(string(out))
+	}
+
 	term.Mouse = false
 	term.InputEsc = false
 	term.Gui.Cursor = true
@@ -127,6 +135,7 @@ func lookUp(t string) string {
 	var errBytes bytes.Buffer
 	lookup := shLkup + " " + t + " " + adminF
 	cmd := exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", lookup)
+	cmd.Env = cleanEnv()
 
 	stdin, err := cmd.StdinPipe()
 	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
@@ -141,6 +150,7 @@ func completed() int {
 	var errBytes bytes.Buffer
 	finished := shDone + " " + doneF
 	cmd := exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", finished)
+	cmd.Env = cleanEnv()
 	stdin, err := cmd.StdinPipe()
 	EOK(errDir, err, "couldn't create input pipe", errBytes.String())
 	defer stdin.Close()
@@ -155,6 +165,7 @@ func initDone(s int) {
 
 	var errBytes bytes.Buffer
 	cmd := exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", shInit)
+	cmd.Env = cleanEnv()
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = &errBytes
@@ -180,6 +191,7 @@ func sendMail(s string) {
 	subject := "'" + course + player.Team + " " + message + "'"
 	mail := shMail + " " + doneF + " " + player.Name + " " + player.Team + " " + s + " " + subject
 	cmd := exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", mail)
+	cmd.Env = cleanEnv()
 	//log.Println(cmd.String()[42:])
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -206,6 +218,7 @@ func updatePlayer() {
 	doneF = logDir + "/" + player.Name + ".done"
 	cli := "/usr/bin/tail -1 " + doneF
 	cmd := exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", cli)
+	cmd.Env = cleanEnv()
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = &outBytes
 	cmd.Stderr = &outBytes
@@ -235,6 +248,7 @@ func updatePlayer() {
 		outBytes.Reset()
 		wins := shWins + " " + doneF
 		cmd = exec.Command("/usr/bin/bash", "--norc", "--noprofile", "-c", wins)
+		cmd.Env = cleanEnv()
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = &outBytes
 		cmd.Stderr = &outBytes
@@ -377,6 +391,11 @@ func resetFrame() {
 }
 
 func resetTerm(y string) {
+	if rawState != "" {
+		sttyCmd := exec.Command("/usr/bin/stty", rawState)
+		sttyCmd.Stdin = os.Stdin
+		_ = sttyCmd.Run()
+	}
 	counter = 0
 	topicNo = 0
 	ymlFile = y
@@ -461,4 +480,24 @@ func logTeam() {
 	message = []string{string(time.Now().Format(time.RFC822)), player.Name, player.Team, player.Lead, strconv.Itoa(player.Done), "", ""}
 	csvStats.Write(message)
 	csvStats.Flush()
+}
+
+func safeEnv() {
+	_ = os.Setenv("TERM", "linux") // or "xterm-256color" / "xterm"
+	_ = os.Setenv("LC_ALL", "en_US.UTF-8")
+	_ = os.Setenv("LANG", "en_US.UTF-8")
+	_ = os.Unsetenv("BASH_ENV")
+}
+
+func cleanEnv() []string {
+	return []string{
+		"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+		"TERM=linux",
+		"LC_ALL=en_US.UTF-8",
+		"LANG=en_US.UTF-8",
+		"TZ=America/Toronto",
+		"DEBIAN_FRONTEND=noninteractive",
+		"HOME=" + os.Getenv("HOME"),
+		"USER=" + os.Getenv("USER"),
+	}
 }
