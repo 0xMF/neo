@@ -91,10 +91,12 @@ func main() {
 	readTest(ymlFile)
 	addPlayerDetails()
 
-	term.Gui, err = gocui.NewGui(gocui.OutputNormal, true)
+	term.Gui, err = gocui.NewGui(gocui.OutputNormal, false)
 	OK(err)
 	defer term.Gui.Close()
 
+	term.Mouse = false
+	term.InputEsc = false
 	term.Gui.Cursor = true
 	term.width, term.height = term.Gui.Size()
 
